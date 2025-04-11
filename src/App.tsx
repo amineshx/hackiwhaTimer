@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from "react"
+import "./CountdownTimer.css"
 
-function App() {
-  const [count, setCount] = useState(0)
+const CountdownTimer: React.FC = () => {
+  const targetDate = new Date("2025-04-12T11:00:00")
+
+  const calculateTimeLeft = () => {
+    const now = new Date()
+    const diff = Math.floor((targetDate.getTime() - now.getTime()) / 1000)
+    return diff > 0 ? diff : 0
+  }
+
+  const [timeLeft, setTimeLeft] = useState<number>(calculateTimeLeft())
+
+  const formatTime = (seconds: number): string => {
+    const h = String(Math.floor(seconds / 3600)).padStart(2, "0")
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0")
+    const s = String(seconds % 60).padStart(2, "0")
+    return `${h}:${m}:${s}`
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft(calculateTimeLeft())
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="content background">
+      <div id="countdown" className={timeLeft === 0 ? "bouncy" : ""}>
+        {formatTime(timeLeft)}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
+const App: React.FC = () => <CountdownTimer />
 export default App
